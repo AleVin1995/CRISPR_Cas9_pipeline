@@ -1,0 +1,1 @@
+rm -r .nextflow* && rm -r work/
