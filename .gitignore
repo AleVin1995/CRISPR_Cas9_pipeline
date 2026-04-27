@@ -1,0 +1,8 @@
+# pixi environments
+.pixi/*
+!.pixi/config.toml
+.vscode/*
+data/*
+results/*
+.nextflow*
+workflows/test.nf
