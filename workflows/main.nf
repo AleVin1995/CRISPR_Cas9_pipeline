@@ -1,4 +1,4 @@
-include { COMPUTE_RAW_LFC } from '../modules/compute_raw_lfc.nf'
+include { COMPUTE_NORM_LFC } from '../modules/compute_norm_lfc.nf'
 
 workflow {
     batch_files = Channel
@@ -9,5 +9,5 @@ workflow {
                 : [ tuple(item.parent.name, item) ]
         }
     
-    COMPUTE_RAW_LFC(batch_files)
+    COMPUTE_NORM_LFC(batch_files)
 }
