@@ -25,15 +25,24 @@ norm_and_lfc <- ccr.NormfoldChanges(cell_line,
                                     ncontrols = n_controls,
                                     method = scaling_method)
 
-# Genome sorting
-sorted_genome <- ccr.logFCs2chromPos(norm_and_lfc$logFCs, crispr_lib) %>%
-    rownames_to_column("sgRNA") %>%
-    # Rename avgFC to cell line specific name
-    rename(!!paste0(cell_line_basename, "_avgFC") := avgFC)
+# If number of treatment samples is < 2, abort the workflow
+n_treatment_samples <- ncol(norm_and_lfc$norm_counts) - n_controls - 2
 
-# Save files
-output_file <- paste0(cell_line_basename, "_norm_lfc.tsv")
+if (n_treatment_samples < 2) {
+    # Insert the cell line name into the error message
+    stop(paste0("At least two treatment samples are required to compute log fold changes for ", 
+        cell_line_basename, ". Aborting workflow."))
+} else {
+    # Genome sorting
+    sorted_genome <- ccr.logFCs2chromPos(norm_and_lfc$logFCs, crispr_lib) %>%
+        rownames_to_column("sgRNA") %>%
+        # Rename avgFC to cell line specific name
+        rename(!!paste0(cell_line_basename, "_avgFC") := avgFC)
 
-write.table(sorted_genome, file = output_file, sep = "\t", row.names = FALSE, quote = FALSE)
-write.table(norm_and_lfc$norm_counts, file = paste0(cell_line_basename, "_norm_counts.tsv"), 
-    sep = "\t", row.names = FALSE, quote = FALSE)
+    # Save files
+    output_file <- paste0(cell_line_basename, "_norm_lfc.tsv")
+
+    write.table(sorted_genome, file = output_file, sep = "\t", row.names = FALSE, quote = FALSE)
+    write.table(norm_and_lfc$norm_counts, file = paste0(cell_line_basename, "_norm_counts.tsv"), 
+        sep = "\t", row.names = FALSE, quote = FALSE)
+}
