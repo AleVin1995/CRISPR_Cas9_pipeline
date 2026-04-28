@@ -11,9 +11,11 @@ process COMPUTE_RAW_LFC {
     script:
     """
     eval "\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)"
-    
+
     Rscript ${projectDir}/../src/compute_raw_lfc.R \$(realpath ${input_file}) \
         ${params.crispr_lib} \
-        ${params.min_reads}
+        ${params.min_reads} \
+        ${params.n_controls} \
+        ${params.scaling_method}
     """
 }
