@@ -1,12 +1,14 @@
 process COMPUTE_RAW_LFC {
     tag "${batch_name}/${input_file.name}"
-    publishDir "${params.raw_lfc_dir}/${batch_name}", mode: 'copy'
+    publishDir "${params.raw_lfc_dir}/${batch_name}", mode: 'copy', pattern: "*_raw_lfc.tsv"
+    publishDir "${params.norm_counts_dir}/${batch_name}", mode: 'copy', pattern: "*_norm_counts.tsv"
 
     input:
     tuple val(batch_name), path(input_file)
 
     output:
-    path "*.tsv"
+    path "*_raw_lfc.tsv", emit: raw_lfc_files
+    path "*_norm_counts.tsv", emit: norm_counts_files
 
     script:
     """
