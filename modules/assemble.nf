@@ -1,6 +1,6 @@
 process ASSEMBLE_MATRIX {
     tag "${input_dir.name}"
-    publishDir "${params.outdir}", mode: 'copy'
+    publishDir "${params.assembled_outdir}", mode: 'copy'
 
     input:
     path input_dir // directory containing batch of sgRNA counts
