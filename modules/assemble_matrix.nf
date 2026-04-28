@@ -4,8 +4,10 @@ process ASSEMBLE_MATRIX {
     input:
     path norm_lfc_files
 
+    def output_file = "sgrna_norm_lfc_assembled.tsv"
+
     output:
-    path "norm_lfc_assembled.tsv", emit: assembled_matrix
+    path "${output_file}", emit: assembled_matrix
 
     script:
     """
@@ -13,6 +15,6 @@ process ASSEMBLE_MATRIX {
 
     Rscript ${projectDir}/../src/assemble_matrix.R \
         ${norm_lfc_files.join(',')} \
-        norm_lfc_assembled.tsv
+        ${output_file}
     """
 }
