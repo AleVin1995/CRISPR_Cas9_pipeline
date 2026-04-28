@@ -5,7 +5,7 @@ library(tidyverse)
 # Arguments
 opt <- list(
     input_files = strsplit("${norm_lfc_files.join(',')}", ",")[[1]],
-    output_file = "!{output_file}"
+    output_file = "${params.sgrna_norm_lfc_assembled}"
 )
 
 input_files <- opt[['input_files']]
