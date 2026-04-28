@@ -1,6 +1,6 @@
-include { ASSEMBLE_MATRIX } from '../modules/assemble.nf'
+include { COMPUTE_RAW_LFC } from '../modules/compute_raw_lfc.nf'
 
 workflow {
     batch_folder = Channel.fromPath(params.input_batches, type: 'dir')
-    ASSEMBLE_MATRIX(batch_folder)
+    COMPUTE_RAW_LFC(batch_folder)
 }
