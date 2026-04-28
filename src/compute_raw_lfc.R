@@ -1,5 +1,5 @@
 library(CRISPRcleanR)
-library(dplyr)
+library(tidyverse)
 
 # Arguments
 args <- commandArgs(trailingOnly = TRUE)
@@ -22,7 +22,8 @@ norm_and_lfc <- ccr.NormfoldChanges(cell_line,
                                     method = scaling_method)
 
 # Genome sorting
-sorted_genome <- ccr.logFCs2chromPos(norm_and_lfc$logFCs, crispr_lib)
+sorted_genome <- ccr.logFCs2chromPos(norm_and_lfc$logFCs, crispr_lib) %>%
+    rownames_to_column("sgRNA")
 
 # Save files
 cell_line_basename <- basename(cell_line) %>%
