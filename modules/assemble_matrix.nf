@@ -1,4 +1,6 @@
 process ASSEMBLE_MATRIX {
+    beforeScript "eval \"\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)\""
+
     publishDir "${params.outdir}", mode: 'copy'
 
     input:
@@ -10,11 +12,5 @@ process ASSEMBLE_MATRIX {
     path "${output_file}", emit: assembled_matrix
 
     script:
-    """
-    eval "\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)"
-
-    Rscript ${projectDir}/../src/assemble_matrix.R \
-        ${norm_lfc_files.join(',')} \
-        ${output_file}
-    """
+    template 'assemble_matrix.R'
 }

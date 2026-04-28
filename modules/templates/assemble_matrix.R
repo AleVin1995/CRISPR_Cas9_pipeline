@@ -1,10 +1,15 @@
+#!/usr/bin/env Rscript
+
 library(tidyverse)
 
 # Arguments
-args <- commandArgs(trailingOnly = TRUE)
+opt <- list(
+    input_files = strsplit("${norm_lfc_files.join(',')}", ",")[[1]],
+    output_file = "!{output_file}"
+)
 
-input_files <- str_split(args[1], ",")[[1]]
-output_file <- args[2]
+input_files <- opt[['input_files']]
+output_file <- opt[['output_file']]
 
 # Read all files and join them
 final_df <- input_files %>%
