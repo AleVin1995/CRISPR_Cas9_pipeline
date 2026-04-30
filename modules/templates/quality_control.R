@@ -52,10 +52,10 @@ qc_results <- lfc_df %>%
         lfc_values <- .x[["lfc"]]
         names(lfc_values) <- .x[["sgRNA"]]
 
-        auroc <- ccr.ROC_Curve(lfc_values, 
+        auroc <- as.numeric(ccr.ROC_Curve(lfc_values, 
                                pos_ctrl_sgrnas, 
                                neg_ctrl_sgrnas,
-                               FDRth = fdr)[["AUC"]]
+                               FDRth = fdr)[["AUC"]])
 
         return(.x %>% 
             mutate(auroc = auroc))
@@ -67,7 +67,9 @@ low_qc_samples <- qc_results %>%
     select(sample, auroc) %>%
     distinct() %>%
     filter(auroc < auroc_thr) %>%
-    pull(sample)
+    pull(sample) %>%
+    str_remove("_lfc") %>%
+    unique()
 
 if (length(low_qc_samples) > 0) {
     warning(paste0("The following samples have an AUROC below the threshold of ", 

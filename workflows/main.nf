@@ -35,7 +35,8 @@ workflow {
 
     // Move low QC log files to the log directory
     QUALITY_CONTROL.out.low_qc_samples
-        .collectFile(name: 'low_qc_samples.log', storeDir: params.log_dir)
+        .collectFile(name: 'low_qc_samples.log', storeDir: params.log_dir,
+        seed: "Samples with low QC (AUROC below threshold):\n")
 
     // Average the sgRNA log fold changes to get gene-level log fold changes
     AVERAGE_MATRIX(QUALITY_CONTROL.out.lfc_sgrna_qc)
