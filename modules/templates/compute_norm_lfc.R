@@ -42,7 +42,9 @@ if (n_treatment_samples < 2) {
     sorted_genome <- ccr.logFCs2chromPos(norm_and_lfc[['logFCs']], crispr_lib) %>%
         rownames_to_column("sgRNA") %>%
         # Rename avgFC to cell line specific name
-        rename(!!paste0(cell_line_basename, "_avgFC") := avgFC)
+        rename(!!paste0(cell_line_basename, "_avgFC") := avgFC) %>%
+        # Put column with avgFC suffix at the end
+        select(-matches("avgFC"), matches("avgFC"))
 
     # Save files
     output_file <- paste0(cell_line_basename, "_norm_lfc.tsv")
