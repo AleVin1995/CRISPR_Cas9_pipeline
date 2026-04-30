@@ -12,6 +12,7 @@ process BIAS_CORRECTION {
     output:
     path "*_lfc_corr.tsv", emit: lfc_corr, optional: true
     path "*_count_norm.tsv", emit: count_norm, optional: true
+    path "skipped_cell_line.log", emit: skipped_cell_line, optional: true
 
     script:
     template 'bias_correction.R'

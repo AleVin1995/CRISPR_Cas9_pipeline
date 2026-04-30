@@ -41,6 +41,7 @@ n_treatment_samples <- ncol(norm_and_lfc[['norm_counts']]) - n_controls - defaul
 if (n_treatment_samples < min_treatments) {
     warning(paste0("At least two treatment samples are required to compute log fold changes for ",
         cell_line_basename, ". Skipping."))
+    write(basename(cell_line), file = "skipped_cell_line.log")
 } else {
     # Genome sorting
     sorted_genome <- ccr.logFCs2chromPos(norm_and_lfc[['logFCs']], crispr_lib) %>%

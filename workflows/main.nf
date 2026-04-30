@@ -16,6 +16,11 @@ workflow {
     
     BIAS_CORRECTION(batch_files)
 
+    // Collect skipped cell line names into a single log file
+    BIAS_CORRECTION.out.skipped_cell_line
+        .collectFile(name: 'skipped_cell_line.log', storeDir: params.log_dir,
+        seed: "Cell lines skipped due to insufficient treatment samples:\n")
+
     // Assemble the corrected log fold change files into a single matrix
     lfc_corr_files = BIAS_CORRECTION.out.lfc_corr.flatten().collect()
     
