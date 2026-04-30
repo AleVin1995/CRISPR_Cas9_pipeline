@@ -3,7 +3,7 @@ process BIAS_CORRECTION {
 
     beforeScript "eval \"\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)\""
 
-    publishDir "${params.lfc_corr_dir}/${batch_name}", mode: 'copy', pattern: "*_lfc_corr.tsv"
+    publishDir "${params.lfc_corr_dir}", mode: 'copy', pattern: "*_lfc_corr.tsv"
     publishDir "${params.count_norm_dir}/${batch_name}", mode: 'copy', pattern: "*_count_norm.tsv"
 
     input:

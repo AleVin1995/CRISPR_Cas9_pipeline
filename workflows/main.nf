@@ -2,6 +2,7 @@ include { BIAS_CORRECTION } from '../modules/bias_correction.nf'
 include { ASSEMBLE_MATRIX as ASSEMBLE_MATRIX_LFC } from '../modules/assemble_matrix.nf'
 include { AVERAGE_MATRIX } from '../modules/average_matrix.nf'
 include { QUALITY_CONTROL } from '../modules/quality_control.nf'
+include { RUN_BAGEL } from '../modules/run_bagel.nf'
 
 workflow {
     // Compute normalised counts and corrected log fold changes 
@@ -20,6 +21,13 @@ workflow {
     BIAS_CORRECTION.out.skipped_cell_line
         .collectFile(name: 'skipped_cell_line.log', storeDir: params.log_dir,
         seed: "Cell lines skipped due to insufficient treatment samples:\n")
+    
+    // Run BAGEL on each batch of corrected log fold changes
+    RUN_BAGEL(
+        BIAS_CORRECTION.out.lfc_corr.flatten(),
+        file(params.pos_ctrl_genes),
+        file(params.neg_ctrl_genes)
+    )
 
     // Assemble the corrected log fold change files into a single matrix
     lfc_corr_files = BIAS_CORRECTION.out.lfc_corr.flatten().collect()
