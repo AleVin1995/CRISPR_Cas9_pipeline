@@ -22,6 +22,8 @@ process RUN_BAGEL {
         -sg ${params.bagel_sgrna_col} \
         -g ${params.bagel_gene_col} \
         -o ${input_file.baseName}.bf \
-        -c ${params.bagel_val_col}
+        -c ${params.bagel_val_col} \
+        --seed 1234 \
+        --bf-column-name ${input_file.baseName.split('[_.]')[0]}_bf
     """
 }
