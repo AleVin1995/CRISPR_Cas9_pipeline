@@ -57,16 +57,26 @@ qc_results <- lfc_df %>%
                                neg_ctrl_sgrnas,
                                FDRth = fdr)[["AUC"]]
 
-        if (auroc < auroc_thr) {
-            warning(paste0("Sample ", sample_name, " has AUROC ", round(auroc, 3), 
-                           " which is below the threshold of ", auroc_thr, "."))
-            return(NULL)
-        } else {
-            return(.x)
-        }
+        return(.x %>% 
+            mutate(auroc = auroc))
     }) %>%
-    compact() %>%
-    bind_rows() %>%
+    bind_rows()
+
+# Check if any sample has an AUROC < auroc_thr
+low_qc_samples <- qc_results %>%
+    select(sample, auroc) %>%
+    distinct() %>%
+    filter(auroc < auroc_thr) %>%
+    pull(sample)
+
+if (length(low_qc_samples) > 0) {
+    warning(paste0("The following samples have an AUROC below the threshold of ", 
+        auroc_thr, ": ", paste(low_qc_samples, collapse = ", ")))
+    write(low_qc_samples, file = "low_qc_samples.log")
+}
+
+qc_results <- qc_results %>%
+    filter(auroc >= auroc_thr) %>%
     pivot_wider(id_cols = c(sgRNA, genes), names_from = sample, values_from = lfc)
 
 # Save the output

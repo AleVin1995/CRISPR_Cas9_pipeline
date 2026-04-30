@@ -10,6 +10,7 @@ process QUALITY_CONTROL {
 
     output:
     path params.lfc_sgrna_qc, emit: lfc_sgrna_qc
+    path "low_qc_samples.log", emit: low_qc_samples, optional: true
 
     script:
     template 'quality_control.R'

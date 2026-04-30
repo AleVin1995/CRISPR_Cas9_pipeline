@@ -33,6 +33,10 @@ workflow {
         file(params.neg_ctrl_genes)
     )
 
+    // Move low QC log files to the log directory
+    QUALITY_CONTROL.out.low_qc_samples
+        .collectFile(name: 'low_qc_samples.log', storeDir: params.log_dir)
+
     // Average the sgRNA log fold changes to get gene-level log fold changes
     AVERAGE_MATRIX(QUALITY_CONTROL.out.lfc_sgrna_qc)
     lfc_gene_qc = AVERAGE_MATRIX.out.lfc_gene_qc
