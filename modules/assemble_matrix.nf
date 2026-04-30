@@ -5,9 +5,10 @@ process ASSEMBLE_MATRIX {
 
     input:
     path lfc_corr_files
+    val matrix_name
 
     output:
-    path params.lfc_sgrna_all, emit: lfc_sgrna_all
+    path matrix_name, emit: matrix_all
 
     script:
     template 'assemble_matrix.R'

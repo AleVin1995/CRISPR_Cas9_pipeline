@@ -1,5 +1,5 @@
 include { BIAS_CORRECTION } from '../modules/bias_correction.nf'
-include { ASSEMBLE_MATRIX } from '../modules/assemble_matrix.nf'
+include { ASSEMBLE_MATRIX as ASSEMBLE_MATRIX_LFC } from '../modules/assemble_matrix.nf'
 include { AVERAGE_MATRIX } from '../modules/average_matrix.nf'
 include { QUALITY_CONTROL } from '../modules/quality_control.nf'
 
@@ -24,11 +24,11 @@ workflow {
     // Assemble the corrected log fold change files into a single matrix
     lfc_corr_files = BIAS_CORRECTION.out.lfc_corr.flatten().collect()
     
-    ASSEMBLE_MATRIX(lfc_corr_files)
+    ASSEMBLE_MATRIX_LFC(lfc_corr_files, params.lfc_sgrna_all)
 
     // Perform quality control on the sgRNA log fold change matrix
     QUALITY_CONTROL(
-        ASSEMBLE_MATRIX.out.lfc_sgrna_all,
+        ASSEMBLE_MATRIX_LFC.out.matrix_all,
         file(params.pos_ctrl_genes),
         file(params.neg_ctrl_genes)
     )
