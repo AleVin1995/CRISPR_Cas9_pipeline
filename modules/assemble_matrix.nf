@@ -4,10 +4,10 @@ process ASSEMBLE_MATRIX {
     publishDir "${params.outdir}", mode: 'copy'
 
     input:
-    path norm_lfc_files
+    path lfc_corr_files
 
     output:
-    path params.sgrna_norm_lfc_assembled, emit: sgrna_norm_lfc_assembled
+    path params.lfc_sgrna_all, emit: lfc_sgrna_all
 
     script:
     template 'assemble_matrix.R'

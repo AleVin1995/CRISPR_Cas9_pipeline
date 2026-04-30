@@ -4,10 +4,10 @@ process AVERAGE_MATRIX {
     publishDir "${params.outdir}", mode: 'copy'
 
     input:
-    path sgrna_norm_lfc_assembled
+    path lfc_sgrna_all
 
     output:
-    path params.gene_norm_lfc_assembled, emit: gene_norm_lfc_assembled
+    path params.lfc_gene_all, emit: lfc_gene_all
 
     script:
     template 'average_matrix.R'

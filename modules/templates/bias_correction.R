@@ -44,16 +44,18 @@ if (n_treatment_samples < min_treatments) {
 } else {
     # Genome sorting
     sorted_genome <- ccr.logFCs2chromPos(norm_and_lfc[['logFCs']], crispr_lib) %>%
-        rownames_to_column("sgRNA") %>%
-        # Rename avgFC to cell line specific name
-        rename(!!paste0(cell_line_basename, "_avgFC") := avgFC) %>%
-        # Put column with avgFC suffix at the end
-        select(-matches("avgFC"), matches("avgFC"))
+        rownames_to_column("sgRNA")
+    
+    # Bias correction
+    corrected_lfc_res <- ccr.GWclean(sorted_genome)
+    corrected_lfc <- corrected_lfc_res[["corrected_logFCs"]] %>%      
+        # Rename correctedFC to cell line specific name
+        rename(!!paste0(cell_line_basename, "_lfc") := correctedFC)
 
     # Save files
-    output_file <- paste0(cell_line_basename, "_norm_lfc.tsv")
+    output_file <- paste0(cell_line_basename, "_lfc_corr.tsv")
 
-    write.table(sorted_genome, file = output_file, sep = "\t", row.names = FALSE, quote = FALSE)
-    write.table(norm_and_lfc[['norm_counts']], file = paste0(cell_line_basename, "_norm_counts.tsv"), 
+    write.table(corrected_lfc, file = output_file, sep = "\t", row.names = FALSE, quote = FALSE)
+    write.table(norm_and_lfc[['norm_counts']], file = paste0(cell_line_basename, "_count_norm.tsv"), 
         sep = "\t", row.names = FALSE, quote = FALSE)
 }
