@@ -23,6 +23,7 @@ process RUN_BAGEL {
         -g ${params.bagel_gene_col} \
         -o ${input_file.baseName}.bf \
         -c ${params.bagel_val_col} \
+        --no-of-cross-validations ${params.bagel_n_cross_validations} \
         --seed 1234 \
         --bf-column-name ${input_file.baseName.split('[_.]')[0]}_bf
     """
