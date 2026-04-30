@@ -4,9 +4,9 @@ library(tidyverse)
 
 # Arguments
 opt <- list(
-    input_matrix = "${params.lfc_sgrna_all}",
+    input_matrix = "${lfc_sgrna_qc}",
     avg_col = "${params.avg_col}",
-    output_file = "${params.lfc_gene_all}"
+    output_file = "${params.lfc_gene_qc}"
 )
 
 input_matrix <- opt[['input_matrix']]

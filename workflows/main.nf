@@ -1,6 +1,7 @@
 include { BIAS_CORRECTION } from '../modules/bias_correction.nf'
 include { ASSEMBLE_MATRIX } from '../modules/assemble_matrix.nf'
 include { AVERAGE_MATRIX } from '../modules/average_matrix.nf'
+include { QUALITY_CONTROL } from '../modules/quality_control.nf'
 
 workflow {
     // Compute normalised counts and corrected log fold changes 
@@ -20,7 +21,14 @@ workflow {
     
     ASSEMBLE_MATRIX(lfc_corr_files)
 
+    // Perform quality control on the sgRNA log fold change matrix
+    QUALITY_CONTROL(
+        ASSEMBLE_MATRIX.out.lfc_sgrna_all,
+        file(params.pos_ctrl_genes),
+        file(params.neg_ctrl_genes)
+    )
+
     // Average the sgRNA log fold changes to get gene-level log fold changes
-    AVERAGE_MATRIX(ASSEMBLE_MATRIX.out.lfc_sgrna_all)
-    lfc_gene_all = AVERAGE_MATRIX.out.lfc_gene_all
+    AVERAGE_MATRIX(QUALITY_CONTROL.out.lfc_sgrna_qc)
+    lfc_gene_qc = AVERAGE_MATRIX.out.lfc_gene_qc
 }
