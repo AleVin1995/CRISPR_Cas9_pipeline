@@ -1,7 +1,7 @@
 process QUALITY_CONTROL {
     beforeScript "eval \"\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)\""
 
-    publishDir "${params.outdir}", mode: 'copy'
+    publishDir "${params.outdir}", mode: 'copy', pattern: "*.tsv"
 
     input:
     path lfc_sgrna_all
