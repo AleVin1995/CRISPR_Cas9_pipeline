@@ -8,22 +8,24 @@ opt <- list(
     auroc_thr = as.numeric("${params.auroc_thr}"),
     crispr_lib = "${params.crispr_lib}",
     fdr = as.numeric("${params.fdr}"),
-    input_matrix = "${lfc_sgrna_all}",
+    input_file = "${lfc_corr}",
     neg_ctrl_genes = basename("${params.neg_ctrl_genes}"),
-    output_file = "${params.lfc_sgrna_qc}",
     pos_ctrl_genes = basename("${params.pos_ctrl_genes}")
 )
 
 auroc_thr <- opt[['auroc_thr']]
 crispr_lib <- opt[['crispr_lib']]
-input_matrix <- opt[['input_matrix']]
+input_file <- opt[['input_file']]
 neg_ctrl_genes <- opt[['neg_ctrl_genes']]
-output_file <- opt[['output_file']]
 pos_ctrl_genes <- opt[['pos_ctrl_genes']]
 fdr <- opt[['fdr']]
 
+# Derive sample name and output file name from input file name
+sample_name <- sub("_lfc_corr.tsv", "", basename(input_file))
+output_file <- paste0(sample_name, "_lfc_corr_qc.tsv")
+
 # Read the input
-lfc_df <- read_tsv(input_matrix, show_col_types = FALSE)
+lfc_df <- read_tsv(input_file, show_col_types = FALSE)
 
 pos_ctrl_genes <- read_tsv(pos_ctrl_genes, 
                            col_names = FALSE, 
@@ -42,44 +44,29 @@ crispr_lib <- get(crispr_lib)
 pos_ctrl_sgrnas <- ccr.genes2sgRNAs(crispr_lib, pos_ctrl_genes)
 neg_ctrl_sgrnas <- ccr.genes2sgRNAs(crispr_lib, neg_ctrl_genes)
 
-# Given the matrix, take recursively the lfc columns, keep the sgRNA as name and compute the AUROC for each column. If any column has an AUROC < auroc_thr, print a warning message.
-qc_results <- lfc_df %>%
-    select(starts_with("sgRNA"), starts_with("genes"), ends_with("_lfc")) %>%
-    pivot_longer(cols = -c(sgRNA, genes), names_to = "sample", values_to = "lfc") %>%
-    group_split(sample, .keep = TRUE) %>%
-    map(~{
-        sample_name <- unique(.x[["sample"]])
-        lfc_values <- .x[["lfc"]]
-        names(lfc_values) <- .x[["sgRNA"]]
+# Find the single _lfc column and compute AUROC
+lfc_col <- grep("_lfc", colnames(lfc_df), value = TRUE)
 
-        auroc <- as.numeric(ccr.ROC_Curve(lfc_values, 
-                               pos_ctrl_sgrnas, 
-                               neg_ctrl_sgrnas,
-                               FDRth = fdr)[["AUC"]])
-
-        return(.x %>% 
-            mutate(auroc = auroc))
-    }) %>%
-    bind_rows()
-
-# Check if any sample has an AUROC < auroc_thr
-low_qc_samples <- qc_results %>%
-    select(sample, auroc) %>%
-    distinct() %>%
-    filter(auroc < auroc_thr) %>%
-    pull(sample) %>%
-    str_remove("_lfc") %>%
-    unique()
-
-if (length(low_qc_samples) > 0) {
-    warning(paste0("The following samples have an AUROC below the threshold of ", 
-        auroc_thr, ": ", paste(low_qc_samples, collapse = ", ")))
-    write(low_qc_samples, file = "low_qc_samples.log")
+if (length(lfc_col) != 1) {
+    stop(paste0(
+        "Expected exactly one _lfc column in ", basename(input_file),
+        ", found ", length(lfc_col), ": ", paste(lfc_col, collapse = ", ")
+    ))
 }
 
-qc_results <- qc_results %>%
-    filter(auroc >= auroc_thr) %>%
-    pivot_wider(id_cols = c(sgRNA, genes), names_from = sample, values_from = lfc)
+lfc_values <- lfc_df[[lfc_col]]
+names(lfc_values) <- lfc_df[["sgRNA"]]
 
-# Save the output
-write_tsv(qc_results, output_file)
+auroc <- as.numeric(ccr.ROC_Curve(lfc_values, 
+                       pos_ctrl_sgrnas, 
+                       neg_ctrl_sgrnas,
+                       FDRth = fdr)[["AUC"]])
+
+# Check if the sample passes QC
+if (auroc < auroc_thr) {
+    warning(paste0("Sample ", sample_name, " has an AUROC of ", auroc, 
+        " below the threshold of ", auroc_thr))
+    write(sample_name, file = "low_qc_samples.log")
+} else {
+    write_tsv(lfc_df, output_file)
+}

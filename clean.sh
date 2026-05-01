@@ -1,1 +1,1 @@
-rm -r .nextflow* && rm -r work/
+rm -r .nextflow* && rm -r work/ && rm -r log/ && rm -r results/

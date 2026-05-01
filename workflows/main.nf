@@ -22,37 +22,12 @@ workflow {
     BIAS_CORRECTION.out.skipped_cell_line
         .collectFile(name: 'skipped_cell_line.log', storeDir: params.log_dir,
         seed: "Cell lines skipped due to insufficient treatment samples:\n")
-
-    // Assemble the corrected log fold change files into a single matrix
-    lfc_corr_files = BIAS_CORRECTION.out.lfc_corr.flatten().collect()
     
-    ASSEMBLE_MATRIX_LFC(
-        lfc_corr_files, 
-        params.lfc_sgrna_all, 
-        params.join_col_lfc, 
-        params.drop_col_lfc
-    )
-
-    // Run BAGEL on each batch of corrected log fold changes
-    RUN_BAGEL(
-        BIAS_CORRECTION.out.lfc_corr.flatten(),
-        file(params.pos_ctrl_genes),
-        file(params.neg_ctrl_genes)
-    )
-
-    // Assemble the BAGEL Bayes factor files into a single matrix
-    bf_files = RUN_BAGEL.out.bagel.flatten().collect()
-
-    ASSEMBLE_MATRIX_BF(
-        bf_files, 
-        params.bf_gene_all, 
-        params.join_col_bf, 
-        params.drop_col_bf
-    )
-
-    // Perform quality control on the sgRNA log fold change matrix
+    // Perform quality control on each corrected LFC file independently
+    lfc_corr_files = BIAS_CORRECTION.out.lfc_corr.flatten()
+    
     QUALITY_CONTROL(
-        ASSEMBLE_MATRIX_LFC.out.matrix_all,
+        lfc_corr_files,
         file(params.pos_ctrl_genes),
         file(params.neg_ctrl_genes)
     )
@@ -62,7 +37,34 @@ workflow {
         .collectFile(name: 'low_qc_samples.log', storeDir: params.log_dir,
         seed: "Samples with low QC (AUROC below threshold):\n")
 
-    // Average the sgRNA log fold changes to get gene-level log fold changes
-    AVERAGE_MATRIX(QUALITY_CONTROL.out.lfc_sgrna_qc)
-    lfc_gene_qc = AVERAGE_MATRIX.out.lfc_gene_qc
+    // // Assemble the corrected log fold change files into a single matrix
+    // lfc_corr_files = BIAS_CORRECTION.out.lfc_corr.flatten().collect()
+    
+    // ASSEMBLE_MATRIX_LFC(
+    //     lfc_corr_files, 
+    //     params.lfc_sgrna_all, 
+    //     params.join_col_lfc, 
+    //     params.drop_col_lfc
+    // )
+
+    // // Run BAGEL on each batch of corrected log fold changes
+    // RUN_BAGEL(
+    //     BIAS_CORRECTION.out.lfc_corr.flatten(),
+    //     file(params.pos_ctrl_genes),
+    //     file(params.neg_ctrl_genes)
+    // )
+
+    // // Assemble the BAGEL Bayes factor files into a single matrix
+    // bf_files = RUN_BAGEL.out.bagel.flatten().collect()
+
+    // ASSEMBLE_MATRIX_BF(
+    //     bf_files, 
+    //     params.bf_gene_all, 
+    //     params.join_col_bf, 
+    //     params.drop_col_bf
+    // )
+
+    // // Average the sgRNA log fold changes to get gene-level log fold changes
+    // AVERAGE_MATRIX(QUALITY_CONTROL.out.lfc_sgrna_qc)
+    // lfc_gene_qc = AVERAGE_MATRIX.out.lfc_gene_qc
 }
