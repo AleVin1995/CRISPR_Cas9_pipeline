@@ -37,34 +37,38 @@ workflow {
         .collectFile(name: 'low_qc_samples.log', storeDir: params.log_dir,
         seed: "Samples with low QC (AUROC below threshold):\n")
 
-    // // Assemble the corrected log fold change files into a single matrix
-    // lfc_corr_files = BIAS_CORRECTION.out.lfc_corr.flatten().collect()
+    // Assemble the corrected log fold change files into a single matrix
+    lfc_corr_qc_files = QUALITY_CONTROL.out.lfc_corr_qc.flatten().collect()
     
-    // ASSEMBLE_MATRIX_LFC(
-    //     lfc_corr_files, 
-    //     params.lfc_sgrna_all, 
-    //     params.join_col_lfc, 
-    //     params.drop_col_lfc
-    // )
+    ASSEMBLE_MATRIX_LFC(
+        lfc_corr_qc_files, 
+        params.lfc_sgrna_all, 
+        params.join_col_lfc, 
+        params.drop_col_lfc
+    )
 
-    // // Run BAGEL on each batch of corrected log fold changes
-    // RUN_BAGEL(
-    //     BIAS_CORRECTION.out.lfc_corr.flatten(),
-    //     file(params.pos_ctrl_genes),
-    //     file(params.neg_ctrl_genes)
-    // )
+    // Run BAGEL on the quality-controlled log fold change files
+    lfc_corr_qc_files = QUALITY_CONTROL.out.lfc_corr_qc.flatten()
 
-    // // Assemble the BAGEL Bayes factor files into a single matrix
-    // bf_files = RUN_BAGEL.out.bagel.flatten().collect()
+    RUN_BAGEL(
+        lfc_corr_qc_files,
+        file(params.pos_ctrl_genes),
+        file(params.neg_ctrl_genes)
+    )
 
-    // ASSEMBLE_MATRIX_BF(
-    //     bf_files, 
-    //     params.bf_gene_all, 
-    //     params.join_col_bf, 
-    //     params.drop_col_bf
-    // )
+    // Assemble the BAGEL Bayes factor files into a single matrix
+    bf_files = RUN_BAGEL.out.bagel.flatten().collect()
 
-    // // Average the sgRNA log fold changes to get gene-level log fold changes
-    // AVERAGE_MATRIX(QUALITY_CONTROL.out.lfc_sgrna_qc)
-    // lfc_gene_qc = AVERAGE_MATRIX.out.lfc_gene_qc
+    ASSEMBLE_MATRIX_BF(
+        bf_files, 
+        params.bf_gene_all, 
+        params.join_col_bf, 
+        params.drop_col_bf
+    )
+
+    // Average the sgRNA log fold changes to get gene-level log fold changes
+    lfc_sgrna_qc_matrix = ASSEMBLE_MATRIX_LFC.out.matrix_all
+
+    AVERAGE_MATRIX(lfc_sgrna_qc_matrix)
+    lfc_gene_qc = AVERAGE_MATRIX.out.lfc_gene_qc
 }
