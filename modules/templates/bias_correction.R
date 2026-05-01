@@ -57,6 +57,4 @@ if (n_treatment_samples < min_treatments) {
     output_file <- paste0(cell_line_basename, "_lfc_corr.tsv")
 
     write.table(corrected_lfc, file = output_file, sep = "\t", row.names = FALSE, quote = FALSE)
-    write.table(norm_and_lfc[['norm_counts']], file = paste0(cell_line_basename, "_count_norm.tsv"), 
-        sep = "\t", row.names = FALSE, quote = FALSE)
 }
