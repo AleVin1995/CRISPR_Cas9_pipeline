@@ -6,6 +6,7 @@ include { AVERAGE_MATRIX } from '../modules/average_matrix.nf'
 include { QUALITY_CONTROL } from '../modules/quality_control.nf'
 include { RUN_BAGEL } from '../modules/run_bagel.nf'
 include { RUN_MAGECK } from '../modules/run_mageck.nf'
+include { GENE_CLASSIFICATION } from '../modules/gene_classification.nf'
 
 workflow {
     // Compute corrected log fold changes for each batch of sgRNA counts
@@ -103,4 +104,11 @@ workflow {
 
     AVERAGE_MATRIX(lfc_sgrna_qc_matrix)
     lfc_gene_qc = AVERAGE_MATRIX.out.lfc_gene_qc
+
+    // Classify genes based on their dependency scores across samples
+    GENE_CLASSIFICATION(
+        lfc_gene_qc,
+        file(params.pos_ctrl_genes),
+        file(params.neg_ctrl_genes)
+    )
 }
