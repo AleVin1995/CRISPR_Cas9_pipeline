@@ -1,5 +1,7 @@
 process RUN_MAGECK {
     tag "${batch_name}/${input_file.name}"
+    maxForks 1
+    cpus 4
 
     beforeScript "eval \"\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)\""
 
@@ -33,10 +35,11 @@ process RUN_MAGECK {
         mageck mle -k \${cell_line_basename}.tsv \
             -d \${design_matrix_file} \
             -n \${cell_line_basename}.mageck \
-            --no-permutation-by-group
+            --no-permutation-by-group \
+            --threads ${task.cpus}
 
         # Subset the gene summary file to keep only the relevant columns
-        awk -v col=${params.mageck_col} 'NR==1 {for(i=1;i<=NF;i++) if(\$i ~ col) target=i} {print \$1, \$target}' \
+        awk -v col=${params.mageck_col} 'NR==1 {for(i=1;i<=NF;i++) if(\$i == "|" col) target=i} {print \$1, \$target}' \
             \${cell_line_basename}.mageck.gene_summary.txt > \${cell_line_basename}.mageck.gene_summary.tmp
         
         mv \${cell_line_basename}.mageck.gene_summary.tmp \${cell_line_basename}.mageck.gene_summary.txt

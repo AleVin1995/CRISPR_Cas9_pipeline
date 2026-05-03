@@ -1,6 +1,7 @@
 include { BIAS_CORRECTION } from '../modules/bias_correction.nf'
 include { ASSEMBLE_MATRIX as ASSEMBLE_MATRIX_LFC } from '../modules/assemble_matrix.nf'
 include { ASSEMBLE_MATRIX as ASSEMBLE_MATRIX_BF } from '../modules/assemble_matrix.nf'
+include { ASSEMBLE_MATRIX as ASSEMBLE_MATRIX_MAGECK } from '../modules/assemble_matrix.nf'
 include { AVERAGE_MATRIX } from '../modules/average_matrix.nf'
 include { QUALITY_CONTROL } from '../modules/quality_control.nf'
 include { RUN_BAGEL } from '../modules/run_bagel.nf'
@@ -68,7 +69,7 @@ workflow {
         // Assemble the MAGeCK gene summary files into a single matrix
         mageck_files = RUN_MAGECK.out.mageck.flatten().collect()
 
-        ASSEMBLE_MATRIX_BF(
+        ASSEMBLE_MATRIX_MAGECK(
             mageck_files, 
             params.mageck_gene_all, 
             params.join_col_mageck, 
