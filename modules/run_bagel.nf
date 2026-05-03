@@ -1,8 +1,6 @@
 process RUN_BAGEL {
     tag "${input_file.name}"
 
-    beforeScript "eval \"\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)\""
-
     publishDir "${params.bagel_dir}", mode: 'copy', pattern: "*.bf"
 
     input:

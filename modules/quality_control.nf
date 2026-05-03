@@ -1,6 +1,4 @@
 process QUALITY_CONTROL {
-    beforeScript "eval \"\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)\""
-
     publishDir "${params.lfc_corr_qc_dir}", mode: 'copy', pattern: "*_lfc_corr_qc.tsv"
 
     input:

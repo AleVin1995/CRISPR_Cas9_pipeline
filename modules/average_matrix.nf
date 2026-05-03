@@ -1,6 +1,4 @@
 process AVERAGE_MATRIX {
-    beforeScript "eval \"\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)\""
-
     publishDir "${params.outdir}", mode: 'copy'
 
     input:

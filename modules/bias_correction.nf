@@ -1,8 +1,6 @@
 process BIAS_CORRECTION {
     tag "${batch_name}/${input_file.name}"
 
-    beforeScript "eval \"\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)\""
-
     publishDir "${params.lfc_corr_dir}", mode: 'copy', pattern: "*_lfc_corr.tsv"
 
     input:

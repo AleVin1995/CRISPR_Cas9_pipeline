@@ -1,8 +1,6 @@
 process RUN_MAGECK {
     tag "${batch_name}/${input_file.name}"
 
-    beforeScript "eval \"\$(pixi shell-hook --manifest-path ${projectDir}/../pixi.toml)\""
-
     publishDir "${params.mageck_dir}", mode: 'copy', pattern: "*.mageck.gene_summary*"
 
     input:
