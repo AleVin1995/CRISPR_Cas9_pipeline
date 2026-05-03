@@ -19,4 +19,4 @@ if [[ "$(docker images -q $IMAGE_NAME 2> /dev/null)" == "" ]]; then
 fi
 
 # Run the pipeline
-nextflow run main.nf
+nextflow run workflows/main.nf
