@@ -98,9 +98,9 @@ workflow {
         )
     }
 
-    // // Average the sgRNA log fold changes to get gene-level log fold changes
-    // lfc_sgrna_qc_matrix = ASSEMBLE_MATRIX_LFC.out.matrix_all
+    // Average the sgRNA log fold changes to get gene-level log fold changes
+    lfc_sgrna_qc_matrix = ASSEMBLE_MATRIX_LFC.out.matrix_all
 
-    // AVERAGE_MATRIX(lfc_sgrna_qc_matrix)
-    // lfc_gene_qc = AVERAGE_MATRIX.out.lfc_gene_qc
+    AVERAGE_MATRIX(lfc_sgrna_qc_matrix)
+    lfc_gene_qc = AVERAGE_MATRIX.out.lfc_gene_qc
 }
