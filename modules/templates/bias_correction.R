@@ -49,7 +49,7 @@ if (n_treatment_samples < min_treatments) {
     
     # Bias correction
     corrected_lfc_res <- ccr.GWclean(sorted_genome)
-    corrected_lfc <- corrected_lfc_res[["corrected_logFCs"]] %>%      
+    corrected_lfc <- corrected_lfc_res[["corrected_logFCs"]] %>%
         # Rename correctedFC to cell line specific name
         rename(!!paste0(cell_line_basename, "_lfc") := correctedFC)
 
