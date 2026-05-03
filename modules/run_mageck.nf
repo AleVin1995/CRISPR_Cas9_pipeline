@@ -35,7 +35,7 @@ process RUN_MAGECK {
             -n \${cell_line_basename}.mageck
 
         # Subset the gene summary file to keep only the relevant columns
-        awk -v col="${params.mageck_col}" 'NR==1 {for(i=1;i<=NF;i++) if(\$i ~ ("[|]" col "\$")) target=i} {print \$1, \$target}' \
+        awk -v col="${params.mageck_col}" 'BEGIN {OFS="\t"} NR==1 {for(i=1;i<=NF;i++) if(\$i ~ ("[|]" col "\$")) target=i} {print \$1, \$target}' \
             \${cell_line_basename}.mageck.gene_summary.txt > \${cell_line_basename}.mageck.gene_summary.tmp
         
         mv \${cell_line_basename}.mageck.gene_summary.tmp \${cell_line_basename}.mageck.gene_summary.txt
