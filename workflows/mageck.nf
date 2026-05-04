@@ -1,4 +1,4 @@
-include { ASSEMBLE_MATRIX } from '../modules/assemble_matrix.nf'
+include { ASSEMBLE_MATRIX as ASSEMBLE_MAGECK_MATRIX } from '../modules/assemble_matrix.nf'
 include { RUN_MAGECK } from '../modules/run_mageck.nf'
 
 workflow RUN_MAGECK_WORKFLOW {
@@ -30,7 +30,7 @@ workflow RUN_MAGECK_WORKFLOW {
     // Assemble the MAGeCK gene summary files into a single matrix
     mageck_files = RUN_MAGECK.out.mageck.flatten().collect()
 
-    ASSEMBLE_MATRIX(
+    ASSEMBLE_MAGECK_MATRIX(
         mageck_files, 
         params.mageck_gene_all, 
         params.join_col_mageck, 

@@ -1,4 +1,4 @@
-include { ASSEMBLE_MATRIX } from '../modules/assemble_matrix.nf'
+include { ASSEMBLE_MATRIX as ASSEMBLE_BF_MATRIX } from '../modules/assemble_matrix.nf'
 include { RUN_BAGEL } from '../modules/run_bagel.nf'
 
 workflow RUN_BAGEL_WORKFLOW {
@@ -20,7 +20,7 @@ workflow RUN_BAGEL_WORKFLOW {
     // Assemble the BAGEL Bayes factor files into a single matrix
     bf_files = RUN_BAGEL.out.bagel.flatten().collect()
 
-    ASSEMBLE_MATRIX(
+    ASSEMBLE_BF_MATRIX(
         bf_files, 
         params.bf_gene_all, 
         params.join_col_bf, 
