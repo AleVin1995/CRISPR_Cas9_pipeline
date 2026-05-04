@@ -4,7 +4,7 @@
 
 This pipeline performs end-to-end analysis of pooled CRISPR-Cas9 loss-of-function screens based on the methodology described in [1]. Starting from raw sgRNA count matrices, it computes corrected log fold changes (LFCs), applies quality control filters, and identifies essential genes through multiple scoring methods. The pipeline is built with [Nextflow](https://www.nextflow.io) DSL2 and runs inside a Docker container, making it portable and reproducible across computing environments.
 
-[1] Behan F.M. et al. *Prioritization of cancer therapeutic targets using CRISPR–Cas9 screens.* Nature, 2019.
+[1] Behan F.M. et al. [*Prioritization of cancer therapeutic targets using CRISPR-Cas9 screens.*](https://doi.org/10.1038/s41586-019-1103-9) Nature, 2019.
 
 ---
 
