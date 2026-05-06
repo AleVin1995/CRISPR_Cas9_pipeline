@@ -5,3 +5,4 @@ crispr_cas9_pipeline_v1.tar
 data/*
 log/*
 results/*
+tests/data/*
