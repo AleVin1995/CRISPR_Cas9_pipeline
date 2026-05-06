@@ -7,10 +7,10 @@ nextflow_process {
     // Define parameters required by the R script template
     setup {
         params {
-            auroc_thr = 0.8
+            auroc_thr = 0.8 // AUROC threshold for QC pass/fail
             crispr_lib = "KY_Library_v1.0" // CRISPR library name
-            fdr = 0.05
-            lfc_corr_qc_dir = "qc_results"
+            fdr = 0.05 // False discovery rate threshold
+            lfc_corr_qc_dir = "qc_results" // Directory for QC results
         }
     }
 
@@ -72,18 +72,21 @@ nextflow_process {
         }
     }
 
-    // test("Should fail if multiple _lfc columns are present") {
-    //     when {
-    //         process {
-    //             input[0] = file("${projectDir}/tests/data/multi_lfc_columns.tsv")
-    //             input[1] = file("${projectDir}/tests/data/pos_ctrls.txt")
-    //             input[2] = file("${projectDir}/tests/data/neg_ctrls.txt")
-    //         }
-    //     }
+    test("Should fail if multiple _lfc columns are present") {
+        when {
+            process {
+                // Input 1: multi-LFC column file, Input 2: Pos controls, Input 3: Neg controls
+                """
+                input[0] = file("${projectDir}/tests/data/multi_lfc_columns.tsv")
+                input[1] = file("${projectDir}/tests/data/pos_ctrls.txt")
+                input[2] = file("${projectDir}/tests/data/neg_ctrls.txt")
+                """
+            }
+        }
 
-    //     then {
-    //         assert process.failed
-    //         assert process.errorReport.contains("Expected exactly one _lfc column")
-    //     }
-    // }
+        then {
+            assert process.failed
+            assert process.errorReport.contains("Expected exactly one _lfc column")
+        }
+    }
 }
