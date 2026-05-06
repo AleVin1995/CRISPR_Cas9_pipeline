@@ -25,7 +25,7 @@ workflow RUN_MAGECK_WORKFLOW {
         }
         .map { batch_name, file, qc_set -> tuple(batch_name, file) }
 
-    RUN_MAGECK(batch_files_qc)
+    RUN_MAGECK(batch_files_qc, file(params.design_matrix_mageck_script))
 
     // Assemble the MAGeCK gene summary files into a single matrix
     mageck_files = RUN_MAGECK.out.mageck.flatten().collect()

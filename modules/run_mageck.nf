@@ -5,6 +5,7 @@ process RUN_MAGECK {
 
     input:
     tuple val(batch_name), path(input_file)
+    path design_matrix_script
 
     output:
     path "*.mageck.gene_summary*", emit: mageck, optional: true
@@ -20,7 +21,7 @@ process RUN_MAGECK {
     design_matrix_file=\${cell_line_basename}_design_matrix.tsv
 
     # Generate the design matrix for MAGeCK
-    if Rscript ${projectDir}/../modules/templates/design_matrix_mageck.R \
+    if Rscript ${design_matrix_script} \
         \${cell_line_basename}.tsv \
         ${params.default_n_cols_sgrna} \
         ${params.min_treatments} \

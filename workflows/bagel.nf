@@ -13,6 +13,7 @@ workflow RUN_BAGEL_WORKFLOW {
 
     RUN_BAGEL(
         lfc_corr_qc_files,
+        file(params.bagel_script),
         file(params.pos_ctrl_genes),
         file(params.neg_ctrl_genes)
     )

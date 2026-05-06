@@ -5,6 +5,7 @@ process RUN_BAGEL {
 
     input:
     path input_file
+    path bagel_script
     path pos_ctrl_genes
     path neg_ctrl_genes
 
@@ -13,7 +14,7 @@ process RUN_BAGEL {
 
     script:
     """
-    python3 ${projectDir}/../bagel/BAGEL.py bf \
+    python3 ${bagel_script} bf \
         -i ${input_file} \
         -e ${pos_ctrl_genes} \
         -n ${neg_ctrl_genes} \
