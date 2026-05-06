@@ -6,3 +6,4 @@ data/*
 log/*
 results/*
 tests/data/*
+tests/output/*

@@ -4,26 +4,59 @@ nextflow_workflow {
     script "workflows/preprocessing.nf"
     workflow "PREPROCESSING_WORKFLOW"
 
-    test("Should run without failures") {
+    setup {
+        params {
+            // Provide a directory containing 1 or 2 small mock batches
+            input_batches = "${projectDir}/tests/data/batches/"
+            pos_ctrl_genes = "${projectDir}/tests/data/pos_ctrls.txt"
+            neg_ctrl_genes = "${projectDir}/tests/data/neg_ctrls.txt"
+            
+            // Bias correction parameters
+            crispr_lib = "KY_Library_v1.0"
+            min_reads = 30
+            n_controls = 1
+            scaling_method = "ScalingByTotalReads"
+            min_treatments = 2
+            default_n_cols_sgrna = 2
+            lfc_corr_dir = "results/lfc_corr"
 
-        when {
-            params {
-                // define parameters here. Example:
-                // outdir = "tests/results"
-            }
-            workflow {
-                """
-                // define inputs of the workflow here. Example:
-                // input[0] = file("test-file.txt")
-                """
-            }
+            // Assembly parameters 
+            lfc_sgrna_all = "lfc_sgrna_matrix.tsv"
+            join_col_lfc = ["sgRNA", "genes"]
+            drop_col_lfc = ["CHR", "startp", "endp", "avgFC", "BP", "correction", "guideIdx"]
+
+            // Averaging and classification parameters
+            avg_col = "genes"
+            lfc_gene_qc = "lfc_gene_matrix.tsv"
+            gene_class = "gene_classification.tsv"
+            
+            log_dir = "${projectDir}/tests/output/logs"
         }
-
-        then {
-            assert workflow.success
-            assert snapshot(workflow.out).match()
-        }
-
     }
 
+    test("Should process batches from directory and generate final classification") {
+
+        then {
+            // Check if the entire workflow finished successfully
+            assert workflow.success
+
+            // Check that QC passed files were emitted 
+            assert workflow.out.qc_results.size() > 0
+
+            // Verify the final classification file (the end of the chain)
+            assert workflow.out.gene_class != null
+            assert path(workflow.out.gene_class[0]).exists()
+
+            // Verify that log files were collected correctly
+            def skip_log = path(params.log_dir + "/skipped_cell_line.log")
+            def qc_log = path(params.log_dir + "/low_qc_samples.log")
+            
+            assert skip_log.exists()
+            assert qc_log.exists()
+
+            // Verify the seed text in the collected logs
+            assert skip_log.text.contains("Cell lines skipped")
+            assert qc_log.text.contains("Samples with low QC")
+        }
+    }
 }

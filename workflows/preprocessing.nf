@@ -62,4 +62,5 @@ workflow PREPROCESSING_WORKFLOW {
     emit:
     qc_results = QUALITY_CONTROL.out.lfc_corr_qc
     batch_files = batch_files.map { batch_name, file -> tuple(batch_name, file) }
+    gene_class = GENE_CLASSIFICATION.out.gene_class
 }
