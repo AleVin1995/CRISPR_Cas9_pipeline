@@ -6,9 +6,9 @@ library(tidyverse)
 # Arguments
 opt <- list(
     input_matrix = "${lfc_gene_qc}",
-    neg_ctrl_genes = basename("${params.neg_ctrl_genes}"),
+    neg_ctrl_genes = "${neg_ctrl_genes}",
     output_file = "${params.gene_class}",
-    pos_ctrl_genes = basename("${params.pos_ctrl_genes}")
+    pos_ctrl_genes = "${pos_ctrl_genes}"
 )
 
 input_matrix <- opt[['input_matrix']]
