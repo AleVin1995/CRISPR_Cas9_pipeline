@@ -7,7 +7,7 @@ include { GENE_CLASSIFICATION } from '../modules/gene_classification.nf'
 workflow PREPROCESSING_WORKFLOW {
     main:
     // Compute corrected log fold changes for each batch of sgRNA counts
-    batch_files = Channel
+    batch_files = channel
         .fromPath(params.input_batches, type: 'any')
         .flatMap { item ->
             item.isDirectory()
