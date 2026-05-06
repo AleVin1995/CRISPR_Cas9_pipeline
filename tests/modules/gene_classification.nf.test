@@ -38,6 +38,18 @@ nextflow_process {
             assert types.contains("core")
             assert types.contains("context")
             assert types.contains("noness")
+
+            // Check if there are "unclassified" genes (if any) and that they
+            // do not belong to the control gene lists
+            def unclassified_genes = result.drop(1).findAll { it.split("\t")[1] == "unclassified" }
+                .collect { it.split("\t")[0] }
+            def pos_ctrl_genes = path("${projectDir}/tests/data/pos_ctrls.txt").readLines()
+            def neg_ctrl_genes = path("${projectDir}/tests/data/neg_ctrls.txt").readLines()
+
+            unclassified_genes.each { gene ->
+                assert !pos_ctrl_genes.contains(gene)
+                assert !neg_ctrl_genes.contains(gene)
+            }
         }
     }
 }
