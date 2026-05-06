@@ -1,5 +1,5 @@
 .nextflow*
-.nf-test.log
+.nf-test*
 .vscode/*
 crispr_cas9_pipeline_v1.tar
 data/*
