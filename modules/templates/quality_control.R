@@ -9,8 +9,8 @@ opt <- list(
     crispr_lib = "${params.crispr_lib}",
     fdr = as.numeric("${params.fdr}"),
     input_file = "${lfc_corr}",
-    neg_ctrl_genes = basename("${params.neg_ctrl_genes}"),
-    pos_ctrl_genes = basename("${params.pos_ctrl_genes}")
+    neg_ctrl_genes = "${neg_ctrl_genes}",
+    pos_ctrl_genes = "${pos_ctrl_genes}"
 )
 
 auroc_thr <- opt[['auroc_thr']]
