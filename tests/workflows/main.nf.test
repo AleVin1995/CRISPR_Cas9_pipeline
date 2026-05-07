@@ -3,19 +3,124 @@ nextflow_pipeline {
     name "Test Workflow main.nf"
     script "workflows/main.nf"
 
-    test("Should run without failures") {
-
+    test("Should run full pipeline including BAGEL and MAGeCK workflows") {
         when {
             params {
-                // define parameters here. Example: 
-                // outdir = "tests/results"
+                // Enable both workflow branches
+                mageck_run = true
+                bagel_run  = true
+
+                // Provide a directory containing 1 or 2 small mock batches
+                input_batches = "${projectDir}/tests/data/batches/"
+                
+                // Bias correction parameters
+                crispr_lib = "KY_Library_v1.0"
+                min_reads = 30
+                n_controls = 1
+                scaling_method = "ScalingByTotalReads"
+                min_treatments = 1
+                default_n_cols_sgrna = 2
+                lfc_corr_dir = "results/lfc_corr"
+
+                // Assembly parameters 
+                lfc_sgrna_all = "lfc_sgrna_matrix.tsv"
+                join_col_lfc = ["sgRNA", "genes"]
+                drop_col_lfc = ["CHR", "startp", "endp", "avgFC", "BP", "correction", "guideIdx"]
+
+                // Averaging and classification parameters
+                avg_col = "genes"
+                lfc_gene_qc = "lfc_gene_matrix.tsv"
+                gene_class = "gene_classification.tsv"
+                
+                log_dir = "${projectDir}/tests/output/logs"
+                
+                // BAGEL workflow params
+                bagel_script = "${projectDir}/bagel/BAGEL.py" // Path to the BAGEL.py script
+                pos_ctrl_genes = "${projectDir}/tests/data/pos_ctrls.txt" // Path to the positive control genes file
+                neg_ctrl_genes = "${projectDir}/tests/data/neg_ctrls.txt" // Path to the negative control genes file
+                bf_gene_all = "bf_gene_all.tsv" // Output file name for the assembled BAGEL matrix
+                join_col_bf = ["GENE"] // Column name to join on in the ASSEMBLE_BF_MATRIX process
+                drop_col_bf = [] // Columns to drop in the ASSEMBLE_BF_MATRIX process (empty means no columns will be dropped)
+                bagel_dir = "results/bagel" // Output directory for BAGEL results
+                bagel_sgrna_col = "sgRNA" // Column name for sgRNA identifiers in the input file
+                bagel_gene_col = "genes" // Column name for gene identifiers in the input file
+                bagel_val_col = 8 // Column name or position for log fold change values in the input file 
+                // (python starts from 0)
+                bagel_n_cross_validations = 2 // Number of cross-validations for BAGEL
+                
+                // MAGeCK workflow params
+                design_matrix_mageck_script = "${projectDir}/modules/templates/design_matrix_mageck.R"
+                mageck_dir = "results/mageck"
+                mageck_gene_all = "mageck_matrix.txt"
+                join_col_mageck = ["Gene"]
+                drop_col_mageck = ["sgRNA"]
+                mageck_col = "fdr"
             }
         }
 
         then {
             assert workflow.success
-        }
 
+            // Verify PREPROCESSING_WORKFLOW was called
+            assert workflow.trace.tasks().findAll { it.name.startsWith("PREPROCESSING_WORKFLOW") && it.success }.size() > 0
+
+            // Verify MAGeCK subworkflow was executed
+            assert workflow.trace.tasks().findAll { it.name.startsWith("RUN_MAGECK_WORKFLOW") && it.success }.size() > 0
+
+            // Verify BAGEL subworkflow was executed
+            assert workflow.trace.tasks().findAll { it.name.startsWith("RUN_BAGEL_WORKFLOW") && it.success }.size() > 0
+            
+            // Verify that the correct output files are generated from each branch
+            assert workflow.stdout.contains("Completed MAGeCK")
+        }
     }
 
+    test("Should skip MAGeCK and BAGEL when flags are false") {
+        when {
+            params {
+                // Disable both workflow branches
+                mageck_run = false
+                bagel_run  = false
+
+                // Provide a directory containing 1 or 2 small mock batches
+                input_batches = "${projectDir}/tests/data/batches/"
+                
+                // Bias correction parameters
+                crispr_lib = "KY_Library_v1.0"
+                min_reads = 30
+                n_controls = 1
+                scaling_method = "ScalingByTotalReads"
+                min_treatments = 1
+                default_n_cols_sgrna = 2
+                lfc_corr_dir = "results/lfc_corr"
+
+                // Assembly parameters 
+                lfc_sgrna_all = "lfc_sgrna_matrix.tsv"
+                join_col_lfc = ["sgRNA", "genes"]
+                drop_col_lfc = ["CHR", "startp", "endp", "avgFC", "BP", "correction", "guideIdx"]
+
+                // Averaging and classification parameters
+                avg_col = "genes"
+                lfc_gene_qc = "lfc_gene_matrix.tsv"
+                gene_class = "gene_classification.tsv"
+                
+                log_dir = "${projectDir}/tests/output/logs"
+                
+                // Needed for PREPROCESSING_WORKFLOW QC steps
+                pos_ctrl_genes = "${projectDir}/tests/data/pos_ctrls.txt"
+                neg_ctrl_genes = "${projectDir}/tests/data/neg_ctrls.txt"
+            }
+        }
+
+        then {
+            assert workflow.success
+            
+            // PREPROCESSING should still run
+            assert workflow.trace.tasks().findAll { it.name.startsWith("PREPROCESSING_WORKFLOW") && it.success }.size() > 0
+
+            // MAGeCK and BAGEL sub-workflows should NOT be in the trace 
+            assert workflow.trace.tasks().findAll { it.name.startsWith("RUN_MAGECK_WORKFLOW") && it.success }.size() == 0
+            assert workflow.trace.tasks().findAll { it.name.startsWith("RUN_BAGEL_WORKFLOW") && it.success }.size() == 0
+        }
+    }
 }
