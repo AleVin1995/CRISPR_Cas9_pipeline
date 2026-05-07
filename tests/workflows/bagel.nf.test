@@ -7,14 +7,13 @@ nextflow_workflow {
     test("Should coordinate RUN_BAGEL and ASSEMBLE_BF_MATRIX correctly") {
         when {
             params {
+                // BAGEL workflow params
                 bagel_script = "${projectDir}/bagel/BAGEL.py" // Path to the BAGEL.py script
                 pos_ctrl_genes = "${projectDir}/tests/data/pos_ctrls.txt" // Path to the positive control genes file
                 neg_ctrl_genes = "${projectDir}/tests/data/neg_ctrls.txt" // Path to the negative control genes file
                 bf_gene_all = "bf_gene_all.tsv" // Output file name for the assembled BAGEL matrix
-                join_col_bf = "GENE" // Column name to join on in the ASSEMBLE_BF_MATRIX process
-                drop_col_bf = "" // Columns to drop in the ASSEMBLE_BF_MATRIX process (empty means no columns will be dropped)
-
-                // RUN_BAGEL process params
+                join_col_bf = ["GENE"] // Column name to join on in the ASSEMBLE_BF_MATRIX process
+                drop_col_bf = [] // Columns to drop in the ASSEMBLE_BF_MATRIX process (empty means no columns will be dropped)
                 bagel_dir = "results/bagel" // Output directory for BAGEL results
                 bagel_sgrna_col = "sgRNA" // Column name for sgRNA identifiers in the input file
                 bagel_gene_col = "genes" // Column name for gene identifiers in the input file
@@ -44,8 +43,17 @@ nextflow_workflow {
                 // Verify ASSEMBLE_BF_MATRIX was called once
                 { assert workflow.trace.tasks().findAll { it.name.startsWith('RUN_BAGEL_WORKFLOW:ASSEMBLE_BF_MATRIX') && it.success }.size() == 1 },
                 
-                // Verify the assembled BF matrix was produced
-                { assert workflow.out[0] != null }
+                // Verify the assembled BF matrix was produced with correct structure
+                {
+                    def matrixLines = path(workflow.out.bf_matrix[0]).readLines()
+                    def header = matrixLines[0].split('\t')
+                    
+                    assert header[0] == 'GENE'
+                    assert header.size() == 3  // GENE + bagel1_bf + bagel2_bf
+                    assert header.contains('bagel1_bf')
+                    assert header.contains('bagel2_bf')
+                    assert matrixLines.size() > 1  // at least one gene data row
+                }
             )
         }
     }
