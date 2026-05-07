@@ -13,6 +13,8 @@ workflow {
             PREPROCESSING_WORKFLOW.out.qc_results,
             PREPROCESSING_WORKFLOW.out.batch_files
         )
+
+        RUN_MAGECK_WORKFLOW.out.mageck_matrix.subscribe { println "Completed MAGeCK" }
     }
 
     // Run BAGEL on the quality-controlled log fold change files
@@ -20,5 +22,7 @@ workflow {
         RUN_BAGEL_WORKFLOW(
             PREPROCESSING_WORKFLOW.out.qc_results
         )
+        
+        RUN_BAGEL_WORKFLOW.out.bf_matrix.subscribe { println "Completed BAGEL" }
     }
 }
