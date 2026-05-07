@@ -55,9 +55,3 @@ nextflow run workflows/main.nf \
     --bagel_run true \
     --mageck_run true
 ```
-
-### Running on a SLURM cluster
-
-```bash
-nextflow run workflows/main.nf -profile cluster,docker
-```
