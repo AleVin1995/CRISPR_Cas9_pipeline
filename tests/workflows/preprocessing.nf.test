@@ -16,7 +16,7 @@ nextflow_workflow {
             min_reads = 30
             n_controls = 1
             scaling_method = "ScalingByTotalReads"
-            min_treatments = 2
+            min_treatments = 1
             default_n_cols_sgrna = 2
             lfc_corr_dir = "results/lfc_corr"
 
