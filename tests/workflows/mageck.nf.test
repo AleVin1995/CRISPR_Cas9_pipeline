@@ -7,13 +7,12 @@ nextflow_workflow {
     test("Should coordinate RUN_MAGECK and ASSEMBLE_MAGECK_MATRIX correctly") {
         when {
             params {
+                // MAGeCK workflow params
                 design_matrix_mageck_script = "${projectDir}/modules/templates/design_matrix_mageck.R"
                 mageck_dir = "results/mageck"
                 mageck_gene_all = "mageck_matrix.txt"
-                join_col_mageck = "Gene"
-                drop_col_mageck = "sgRNA"
-
-                // MAGeCK process params
+                join_col_mageck = ["Gene"]
+                drop_col_mageck = []
                 default_n_cols_sgrna = 2
                 min_treatments = 1
                 n_controls = 1
@@ -46,8 +45,15 @@ nextflow_workflow {
                 // Verify ASSEMBLE_MAGECK_MATRIX was called once
                 { assert workflow.trace.tasks().findAll { it.name.startsWith('RUN_MAGECK_WORKFLOW:ASSEMBLE_MAGECK_MATRIX') && it.success }.size() == 1 },
                 
-                // Verify the assembled MAGeCK matrix was produced
-                { assert workflow.out[0] != null }
+                // Verify the assembled MAGeCK matrix was produced with correct structure
+                {
+                    def matrixLines = path(workflow.out.mageck_matrix[0]).readLines()
+                    def header = matrixLines[0].split('\t')
+                    
+                    assert header[0] == 'Gene'
+                    assert header.size() == 3  // Gene + one FDR column per sample
+                    assert matrixLines.size() > 1  // at least one gene data row
+                }
             )
         }
     }
