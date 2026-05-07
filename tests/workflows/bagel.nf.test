@@ -42,7 +42,7 @@ nextflow_workflow {
                 { assert workflow.trace.tasks().findAll { it.name.startsWith('RUN_BAGEL_WORKFLOW:RUN_BAGEL') && it.success }.size() == 2 },
                 
                 // Verify ASSEMBLE_BF_MATRIX was called once
-                { assert workflow.trace.tasks().findAll { it.name == 'RUN_BAGEL_WORKFLOW:ASSEMBLE_BF_MATRIX' && it.success }.size() == 1 },
+                { assert workflow.trace.tasks().findAll { it.name.startsWith('RUN_BAGEL_WORKFLOW:ASSEMBLE_BF_MATRIX') && it.success }.size() == 1 },
                 
                 // Verify the assembled BF matrix was produced
                 { assert workflow.out[0] != null }
