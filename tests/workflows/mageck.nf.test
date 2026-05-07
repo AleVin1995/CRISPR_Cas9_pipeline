@@ -4,26 +4,51 @@ nextflow_workflow {
     script "workflows/mageck.nf"
     workflow "RUN_MAGECK_WORKFLOW"
 
-    test("Should run without failures") {
-
+    test("Should coordinate RUN_MAGECK and ASSEMBLE_MAGECK_MATRIX correctly") {
         when {
             params {
-                // define parameters here. Example:
-                // outdir = "tests/results"
+                design_matrix_mageck_script = "${projectDir}/modules/templates/design_matrix_mageck.R"
+                mageck_dir = "results/mageck"
+                mageck_gene_all = "mageck_matrix.txt"
+                join_col_mageck = "Gene"
+                drop_col_mageck = "sgRNA"
+
+                // MAGeCK process params
+                default_n_cols_sgrna = 2
+                min_treatments = 1
+                n_controls = 1
+                mageck_col = "fdr"
             }
+
             workflow {
                 """
-                // define inputs of the workflow here. Example:
-                // input[0] = file("test-file.txt")
+                // Define QC result files (cell line name must match batch file prefix)
+                qc1 = file("${projectDir}/tests/data/mageck1_lfc_corr_qc.tsv")
+                qc2 = file("${projectDir}/tests/data/mageck2_lfc_corr_qc.tsv")
+
+                // Define batch files as (batch_name, file) tuples
+                batch1 = tuple("mageck_batches", file("${projectDir}/tests/data/mageck_batches/mageck1.tsv.gz"))
+                batch2 = tuple("mageck_batches", file("${projectDir}/tests/data/mageck_batches/mageck2.tsv.gz"))
+
+                input[0] = Channel.fromList([qc1, qc2])
+                input[1] = Channel.fromList([batch1, batch2])
                 """
             }
         }
 
         then {
-            assert workflow.success
-            assert snapshot(workflow.out).match()
+            assertAll(
+                { assert workflow.success },
+
+                // Verify RUN_MAGECK was called for each input file
+                { assert workflow.trace.tasks().findAll { it.name.startsWith('RUN_MAGECK_WORKFLOW:RUN_MAGECK') && it.success }.size() == 2 },
+                
+                // Verify ASSEMBLE_MAGECK_MATRIX was called once
+                { assert workflow.trace.tasks().findAll { it.name.startsWith('RUN_MAGECK_WORKFLOW:ASSEMBLE_MAGECK_MATRIX') && it.success }.size() == 1 },
+                
+                // Verify the assembled MAGeCK matrix was produced
+                { assert workflow.out[0] != null }
+            )
         }
-
     }
-
 }

@@ -36,4 +36,7 @@ workflow RUN_MAGECK_WORKFLOW {
         params.join_col_mageck, 
         params.drop_col_mageck
     )
+
+    emit:
+    mageck_matrix = ASSEMBLE_MAGECK_MATRIX.out.matrix_all
 }
