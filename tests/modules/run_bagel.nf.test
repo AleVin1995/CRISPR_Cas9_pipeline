@@ -10,7 +10,7 @@ nextflow_process {
                 bagel_sgrna_col = "sgRNA" // Column name for sgRNA identifiers in the input file
                 bagel_gene_col = "genes" // Column name for gene identifiers in the input file
                 bagel_val_col = "lfc" // Column name for log fold change values in the input file
-                bagel_n_cross_validations = 10 // Number of cross-validations for BAGEL
+                bagel_n_cross_validations = 2 // Number of cross-validations for BAGEL
                 ctrl_gene_col = "GENE" // Column name for gene identifiers in control files (positive and negative)
             }
             process {
