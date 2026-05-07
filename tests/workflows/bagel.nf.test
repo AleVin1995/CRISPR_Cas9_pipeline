@@ -26,8 +26,8 @@ nextflow_workflow {
             workflow {
                 """
                 // Define input files for the workflow
-                file1 = file("${projectDir}/tests/data/bagel_test1.tsv")
-                file2 = file("${projectDir}/tests/data/bagel_test2.tsv")
+                file1 = file("${projectDir}/tests/data/bagel1.tsv")
+                file2 = file("${projectDir}/tests/data/bagel2.tsv")
 
                 input[0] = Channel.fromList([file1, file2])
                 """

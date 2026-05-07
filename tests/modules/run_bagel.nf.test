@@ -9,14 +9,14 @@ nextflow_process {
             params {
                 bagel_sgrna_col = "sgRNA" // Column name for sgRNA identifiers in the input file
                 bagel_gene_col = "genes" // Column name for gene identifiers in the input file
-                bagel_val_col = "bagel_test1_lfc" // Column name for log fold change values in the input file
+                bagel_val_col = "bagel1_lfc" // Column name for log fold change values in the input file
                 bagel_n_cross_validations = 2 // Number of cross-validations for BAGEL
                 ctrl_gene_col = "GENE" // Column name for gene identifiers in control files (positive and negative)
             }
             process {
                 """
                 // Define input files
-                input[0] = file("${projectDir}/tests/data/bagel_test1.tsv")
+                input[0] = file("${projectDir}/tests/data/bagel1.tsv")
                 input[1] = file("${projectDir}/bagel/BAGEL.py")
                 input[2] = file("${projectDir}/tests/data/pos_ctrls.txt")
                 input[3] = file("${projectDir}/tests/data/neg_ctrls.txt")
@@ -28,7 +28,7 @@ nextflow_process {
             assert process.success
 
             // Ensure the input file has the expected format
-            def bf_lines = file("${projectDir}/tests/data/bagel_test1.tsv").readLines()
+            def bf_lines = file("${projectDir}/tests/data/bagel1.tsv").readLines()
             def bf_header = bf_lines[0].split('\t')
 
             int bf_sgrnaIdx = bf_header.findIndexOf { it == params.bagel_sgrna_col }
