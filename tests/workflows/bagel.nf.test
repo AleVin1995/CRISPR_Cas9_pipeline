@@ -4,26 +4,49 @@ nextflow_workflow {
     script "workflows/bagel.nf"
     workflow "RUN_BAGEL_WORKFLOW"
 
-    test("Should run without failures") {
-
+    test("Should coordinate RUN_BAGEL and ASSEMBLE_BF_MATRIX correctly") {
         when {
             params {
-                // define parameters here. Example:
-                // outdir = "tests/results"
+                bagel_script = "${projectDir}/bagel/BAGEL.py" // Path to the BAGEL.py script
+                pos_ctrl_genes = "${projectDir}/tests/data/pos_ctrls.txt" // Path to the positive control genes file
+                neg_ctrl_genes = "${projectDir}/tests/data/neg_ctrls.txt" // Path to the negative control genes file
+                bf_gene_all = "bf_gene_all.tsv" // Output file name for the assembled BAGEL matrix
+                join_col_bf = "GENE" // Column name to join on in the ASSEMBLE_BF_MATRIX process
+                drop_col_bf = "" // Columns to drop in the ASSEMBLE_BF_MATRIX process (empty means no columns will be dropped)
+
+                // RUN_BAGEL process params
+                bagel_dir = "results/bagel" // Output directory for BAGEL results
+                bagel_sgrna_col = "sgRNA" // Column name for sgRNA identifiers in the input file
+                bagel_gene_col = "genes" // Column name for gene identifiers in the input file
+                bagel_val_col = 8 // Column name or position for log fold change values in the input file 
+                // (python starts from 0)
+                bagel_n_cross_validations = 2 // Number of cross-validations for BAGEL
             }
+
             workflow {
                 """
-                // define inputs of the workflow here. Example:
-                // input[0] = file("test-file.txt")
+                // Define input files for the workflow
+                file1 = file("${projectDir}/tests/data/bagel_test1.tsv")
+                file2 = file("${projectDir}/tests/data/bagel_test2.tsv")
+
+                input[0] = Channel.fromList([file1, file2])
                 """
             }
         }
 
         then {
-            assert workflow.success
-            assert snapshot(workflow.out).match()
+            assertAll(
+                { assert workflow.success },
+
+                // Verify RUN_BAGEL was called for each input file
+                { assert workflow.trace.tasks().findAll { it.name.startsWith('RUN_BAGEL_WORKFLOW:RUN_BAGEL') && it.success }.size() == 2 },
+                
+                // Verify ASSEMBLE_BF_MATRIX was called once
+                { assert workflow.trace.tasks().findAll { it.name == 'RUN_BAGEL_WORKFLOW:ASSEMBLE_BF_MATRIX' && it.success }.size() == 1 },
+                
+                // Verify the assembled BF matrix was produced
+                { assert workflow.out[0] != null }
+            )
         }
-
     }
-
 }

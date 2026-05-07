@@ -27,4 +27,7 @@ workflow RUN_BAGEL_WORKFLOW {
         params.join_col_bf, 
         params.drop_col_bf
     )
+
+    emit:
+    bf_matrix = ASSEMBLE_BF_MATRIX.out.matrix_all
 }
