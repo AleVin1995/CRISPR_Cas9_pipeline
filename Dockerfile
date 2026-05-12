@@ -44,7 +44,8 @@ RUN pixi add \
     "pandas>=3.0.2,<4" \
     "scipy>=1.17.1,<2" \
     "scikit-learn>=1.8.0,<2" \
-    "openssl>=3.2.0"
+    "openssl>=3.2.0" \
+    "nf-test>=0.9.2,<1"
 
 # Install GitHub R packages using the Pixi-managed R environment
 # We use 'pixi run' to ensure the packages are installed into the correct library

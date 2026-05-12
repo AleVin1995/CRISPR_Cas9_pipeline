@@ -25,6 +25,7 @@ pandas = ">=3.0.2,<4"
 scipy = ">=1.17.1,<2"
 scikit-learn = ">=1.8.0,<2"
 openssl = ">=3.2.0"
+nf-test = ">=0.9.5,<0.10"
 
 [tasks]
 setup-r-packages = "Rscript -e 'options(download.file.method=\"curl\", timeout=300); remotes::install_github(\"francescojm/CRISPRcleanR\", upgrade=\"never\"); remotes::install_github(\"DepMap-Analytics/CoRe\", upgrade=\"never\")'"
